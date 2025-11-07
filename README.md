@@ -1,10 +1,11 @@
+```markdown
 <div align="center">
   <img src="askbera.png" alt="Ask Bera - Bera MCP Server" width="100%">
 </div>
 
 <div align="center">
 
-[![smithery badge](https://smithery.ai/badge/@SerPepe/bera-mcp)](https://smithery.ai/server/@SerPepe/bera-mcp)
+[![installations](https://smithery.ai/installations/@SerPepe/bera-mcp)](https://smithery.ai/server/@SerPepe/bera-mcp) [![smithery badge](https://smithery.ai/badge/@SerPepe/bera-mcp)](https://smithery.ai/server/@SerPepe/bera-mcp)
 
 </div>
 
@@ -358,3 +359,4 @@ Got questions? Stuck on something? Bera's here to help!
 **Built with 🍯 for the Berachain developer community** 🐻
 
 *May your contracts deploy smoothly and your honey flow freely!*
+```
