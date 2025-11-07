@@ -29,19 +29,29 @@ export interface Config {
   };
 }
 
-export function getConfig(): Config {
-  const openrouterApiKey = process.env.OPENROUTER_API_KEY;
+export interface UserConfig {
+  openrouterApiKey?: string;
+  upstashUrl?: string;
+  upstashToken?: string;
+  llmModel?: 'z-ai/glm-4.6' | 'minimax/minimax-m2';
+  chunkSize?: number;
+  chunkOverlap?: number;
+  topK?: number;
+}
+
+export function getConfig(userConfig?: UserConfig): Config {
+  const openrouterApiKey = userConfig?.openrouterApiKey || process.env.OPENROUTER_API_KEY;
   if (!openrouterApiKey) {
     throw new Error('OPENROUTER_API_KEY environment variable is required');
   }
 
-  const upstashUrl = process.env.UPSTASH_VECTOR_REST_URL;
-  const upstashToken = process.env.UPSTASH_VECTOR_REST_TOKEN;
+  const upstashUrl = userConfig?.upstashUrl || process.env.UPSTASH_VECTOR_REST_URL;
+  const upstashToken = userConfig?.upstashToken || process.env.UPSTASH_VECTOR_REST_TOKEN;
   if (!upstashUrl || !upstashToken) {
     throw new Error('UPSTASH_VECTOR_REST_URL and UPSTASH_VECTOR_REST_TOKEN environment variables are required');
   }
 
-  const llmModel = (process.env.LLM_MODEL || 'z-ai/glm-4.6') as Config['openrouter']['llmModel'];
+  const llmModel = (userConfig?.llmModel || process.env.LLM_MODEL || 'z-ai/glm-4.6') as Config['openrouter']['llmModel'];
 
   return {
     openrouter: {
@@ -54,9 +64,9 @@ export function getConfig(): Config {
       token: upstashToken,
     },
     indexing: {
-      chunkSize: parseInt(process.env.CHUNK_SIZE || '1000', 10),
-      chunkOverlap: parseInt(process.env.CHUNK_OVERLAP || '200', 10),
-      topK: parseInt(process.env.TOP_K || '5', 10),
+      chunkSize: userConfig?.chunkSize || parseInt(process.env.CHUNK_SIZE || '1000', 10),
+      chunkOverlap: userConfig?.chunkOverlap || parseInt(process.env.CHUNK_OVERLAP || '200', 10),
+      topK: userConfig?.topK || parseInt(process.env.TOP_K || '5', 10),
     },
     repos: {
       docs: {

@@ -131,18 +131,45 @@ Since Bera MCP uses your own API keys (OpenRouter and Upstash), you need to host
 
 3. **Restart Cursor** to load the MCP server
 
-### Option 2: Deploy to Smithery
+### Option 2: Deploy to Smithery (Recommended for Production)
+
+Bera MCP is configured for Smithery deployment using TypeScript runtime. The `smithery.yaml` file is already set up.
 
 1. **Push your repository to GitHub** (make sure `.env` is in `.gitignore`!)
 
 2. **Deploy to Smithery**:
    - Go to [Smithery](https://smithery.ai/)
-   - Connect your GitHub account
-   - Create a new MCP server deployment
-   - Configure environment variables in Smithery's dashboard
-   - Deploy
+   - Sign in and connect your GitHub account
+   - Click "Create Server" or "New Deployment"
+   - Select your `bera-mcp` repository
+   - Smithery will automatically detect the `smithery.yaml` configuration
 
-3. **Add Smithery MCP to Cursor** using the Smithery-provided connection details
+3. **Configure Server Settings**:
+   - In the Smithery dashboard, go to your server's settings
+   - Add the following configuration values:
+     - `openrouterApiKey`: Your OpenRouter API key
+     - `upstashUrl`: Your Upstash Vector REST URL
+     - `upstashToken`: Your Upstash Vector REST token
+     - `llmModel`: Optional - `z-ai/glm-4.6` or `minimax/minimax-m2` (default: `z-ai/glm-4.6`)
+   - These will be securely stored and passed to your server
+
+4. **Deploy**:
+   - Click "Deploy" in the Smithery dashboard
+   - Smithery will build and deploy your server automatically
+   - Wait for the deployment to complete (usually 2-5 minutes)
+
+5. **Index Documentation** (First Time Only):
+   - After deployment, you'll need to run the indexer once to populate the vector database
+   - You can do this locally or set up a one-time indexing job
+   - Run: `npm run index` (this requires your `.env` file with API keys)
+
+6. **Connect from Cursor**:
+   - In Cursor, go to Settings → Features → Model Context Protocol
+   - Add a new MCP server using the Smithery connection URL
+   - The URL format will be: `https://server.smithery.ai/your-server/mcp`
+   - Configure with your API keys in the connection settings
+
+**Note**: The server configuration schema is automatically generated from `configSchema` in `src/index.ts`, so Smithery will show a form for entering your API keys when connecting.
 
 ## MCP Tools
 

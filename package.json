@@ -3,17 +3,19 @@
   "version": "0.1.0",
   "description": "MCP server for Berachain development documentation and guides",
   "type": "module",
+  "module": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
     "bera-mcp": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "npx smithery build",
+    "dev": "npx smithery dev",
     "watch": "tsc --watch",
-    "prepare": "npm run build",
+    "prepare": "tsc",
     "start": "node dist/cli.js",
-    "index": "npm run build && node dist/indexer-cli.js"
+    "index": "npm run prepare && node dist/indexer-cli.js"
   },
   "keywords": [
     "mcp",
@@ -28,11 +30,13 @@
     "simple-git": "^3.24.0",
     "marked": "^12.0.0",
     "@upstash/vector": "^1.0.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "zod": "^3.25.46"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "@smithery/cli": "^1.4.6"
   }
 }
 

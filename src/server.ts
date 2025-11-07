@@ -9,8 +9,8 @@ import { getQueryTool, handleQueryTool } from './tools/query.js';
 
 const version = '0.1.0';
 
-export function createServer(): Server {
-  const config = getConfig();
+export function createServer(userConfig?: { config?: any }): Server {
+  const config = getConfig(userConfig?.config);
   const vectorStore = new VectorStore(config);
   const embeddingService = new EmbeddingService(config);
 
