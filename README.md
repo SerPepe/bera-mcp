@@ -1,0 +1,303 @@
+# Bera MCP Server
+
+A Model Context Protocol (MCP) server that provides AI agents with comprehensive access to Berachain development documentation, guides, and resources. Built with RAG (Retrieval Augmented Generation) to deliver accurate, context-aware answers about Berachain development.
+
+## What is Bera MCP?
+
+Bera MCP is an MCP server that indexes and provides access to:
+- Official Berachain documentation from `berachain/docs`
+- Berachain development guides from `berachain/guides`
+- Custom documentation files (placed in the `docs/` directory)
+
+The server uses semantic search and AI-powered responses to help developers quickly find answers about:
+- Smart contract development on Berachain
+- DeFi protocol integrations
+- Oracle integrations (Pyth, etc.)
+- Token standards and implementations
+- Deployment guides and best practices
+- And much more!
+
+## Features
+
+- **🐻Wizard Tool (`ask_berachain`)**: Ask any question and get comprehensive AI-powered answers with code examples
+- **🔍 Semantic Search (`search_docs`)**: Search across all documentation using natural language
+- **📄 Document Retrieval (`get_doc_section`)**: Get specific documentation sections by file path
+- **🔄 Auto-Updates**: Automatically downloads and indexes the latest Berachain documentation
+- **📚 Custom Docs**: Add your own markdown files to the `docs/` directory for indexing
+
+## Prerequisites
+
+- Node.js 18+ and npm
+- OpenRouter API key (for embeddings and LLM)
+- Upstash Vector account (for vector storage)
+
+## Installation
+
+### 1. Clone the Repository
+
+```bash
+git clone <your-repo-url>
+cd bera-mcp
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Set Up Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+UPSTASH_VECTOR_REST_URL=your_upstash_vector_url_here
+UPSTASH_VECTOR_REST_TOKEN=your_upstash_vector_token_here
+
+LLM_MODEL=z-ai/glm-4.6
+```
+
+**Required Environment Variables:**
+- `OPENROUTER_API_KEY`: Your OpenRouter API key for embeddings and LLM generation
+- `UPSTASH_VECTOR_REST_URL`: Your Upstash Vector REST API URL
+- `UPSTASH_VECTOR_REST_TOKEN`: Your Upstash Vector REST API token
+
+**Optional Environment Variables:**
+- `LLM_MODEL`: LLM model for generating answers (default: `z-ai/glm-4.6`)
+- `CHUNK_SIZE`: Document chunk size for indexing (default: `1000`)
+- `CHUNK_OVERLAP`: Overlap between chunks (default: `200`)
+- `TOP_K`: Number of results for search (default: `5`)
+
+### 4. Set Up Upstash Vector
+
+1. Create an account at [Upstash](https://upstash.com/)
+2. Create a new Vector database
+3. Configure with these settings:
+   - **Type**: `Dense`
+   - **Embedding Model**: `Custom`
+   - **Dimensions**: `3072`
+   - **Metric**: `COSINE`
+4. Copy the REST URL and Token to your `.env` file
+
+### 5. Build and Index
+
+```bash
+npm run build
+npm run index
+```
+
+The indexer will:
+- Download Berachain docs and guides repositories
+- Process all markdown files
+- Generate embeddings
+- Store everything in your Upstash Vector database
+
+**Note**: First-time indexing may take 10-20 minutes depending on documentation size.
+
+### 6. Start the Server
+
+```bash
+npm start
+```
+
+The server runs on stdio and is ready to accept MCP client connections.
+
+## Installing in Cursor
+
+Since Bera MCP uses your own API keys (OpenRouter and Upstash), you need to host it yourself. Here's how to set it up in Cursor:
+
+### Option 1: Local Installation (Recommended)
+
+1. **Clone and set up the server** (follow installation steps above)
+
+2. **Add to Cursor's MCP settings** (`~/.cursor/mcp.json` or Cursor Settings → Features → Model Context Protocol):
+
+```json
+{
+  "mcpServers": {
+    "bera-mcp": {
+      "command": "node",
+      "args": ["/absolute/path/to/bera-mcp/dist/cli.js"],
+      "env": {
+        "OPENROUTER_API_KEY": "your_key_here",
+        "UPSTASH_VECTOR_REST_URL": "your_url_here",
+        "UPSTASH_VECTOR_REST_TOKEN": "your_token_here"
+      }
+    }
+  }
+}
+```
+
+3. **Restart Cursor** to load the MCP server
+
+### Option 2: Deploy to Smithery
+
+1. **Push your repository to GitHub** (make sure `.env` is in `.gitignore`!)
+
+2. **Deploy to Smithery**:
+   - Go to [Smithery](https://smithery.ai/)
+   - Connect your GitHub account
+   - Create a new MCP server deployment
+   - Configure environment variables in Smithery's dashboard
+   - Deploy
+
+3. **Add Smithery MCP to Cursor** using the Smithery-provided connection details
+
+## MCP Tools
+
+### `ask_berachain` 🐻
+
+The main wizard tool for asking questions about Berachain development.
+
+**Parameters:**
+- `question` (required): Your question about Berachain
+- `maxContextChunks` (optional): Number of document chunks to use (default: 5)
+
+**Example:**
+```json
+{
+  "question": "How do I integrate Pyth oracles on Berachain?",
+  "maxContextChunks": 5
+}
+```
+
+**Returns:** Comprehensive answer with code examples, sources, and citations.
+
+### `search_docs` 🔍
+
+Semantic search across all Berachain documentation.
+
+**Parameters:**
+- `query` (required): Search query
+- `topK` (optional): Number of results (default: 5)
+
+**Example:**
+```json
+{
+  "query": "HONEY token oracle price",
+  "topK": 3
+}
+```
+
+**Returns:** Array of relevant document chunks with scores and metadata.
+
+### `get_doc_section` 📄
+
+Retrieve a specific documentation section by file path.
+
+**Parameters:**
+- `filePath` (required): Relative file path (e.g., `"PYTH_ORACLES_BERACHAIN.md"`)
+- `repo` (required): Repository name (`"docs"`, `"guides"`, or `"local"`)
+
+**Example:**
+```json
+{
+  "filePath": "PYTH_ORACLES_BERACHAIN.md",
+  "repo": "local"
+}
+```
+
+**Returns:** All chunks from the specified file, sorted by order.
+
+## Adding Custom Documentation
+
+Place markdown files in the `docs/` directory. They will be automatically indexed on the next `npm run index` run.
+
+**Example:**
+```bash
+mkdir -p docs
+cp your-guide.md docs/
+npm run index
+```
+
+## Updating Documentation
+
+To update the indexed documentation:
+
+```bash
+npm run index
+```
+
+This will:
+- Pull the latest changes from `berachain/docs` and `berachain/guides`
+- Re-index all documentation
+- Update your vector database
+
+## Project Structure
+
+```
+bera-mcp/
+├── src/
+│   ├── cli.ts              # MCP server entry point
+│   ├── server.ts           # MCP server setup
+│   ├── config.ts           # Configuration management
+│   ├── indexer.ts          # Indexing pipeline
+│   ├── indexer-cli.ts      # CLI for indexing
+│   ├── downloader.ts      # Git repository downloader
+│   ├── processor.ts        # Markdown processing and chunking
+│   ├── embeddings.ts       # Embedding generation
+│   ├── vectorStore.ts      # Upstash Vector integration
+│   └── tools/
+│       ├── query.ts         # ask_berachain wizard tool
+│       └── search.ts        # search_docs and get_doc_section tools
+├── docs/                    # Custom documentation (auto-indexed)
+├── data/                    # Downloaded repositories (gitignored)
+├── dist/                    # Compiled output (gitignored)
+└── .env                     # Environment variables (gitignored)
+```
+
+## Security Notes
+
+⚠️ **Important**: Never commit your `.env` file or API keys to version control!
+
+The `.gitignore` file is configured to exclude:
+- `.env` and all environment files
+- `data/` directory (downloaded repos)
+- `node_modules/`
+- `dist/` (compiled code)
+
+Always use environment variables or secure secret management when deploying.
+
+## Troubleshooting
+
+### "OPENROUTER_API_KEY environment variable is required"
+
+Make sure your `.env` file exists and contains `OPENROUTER_API_KEY`.
+
+### "UPSTASH_VECTOR_REST_URL and UPSTASH_VECTOR_REST_TOKEN environment variables are required"
+
+Set up your Upstash Vector database and add the credentials to `.env`.
+
+### Indexing fails or takes too long
+
+- Check your OpenRouter API key has sufficient credits
+- Verify your Upstash Vector database is accessible
+- Check network connectivity for downloading repositories
+
+### MCP server not connecting in Cursor
+
+- Verify the path in `mcp.json` is absolute and correct
+- Check that `npm run build` completed successfully
+- Ensure environment variables are set in Cursor's MCP configuration
+- Restart Cursor after configuration changes
+
+## License
+
+MIT
+
+## Contributing
+
+Contributions welcome! Please ensure:
+- All code is properly typed (TypeScript)
+- Environment variables are documented
+- Security best practices are followed
+- Tests are added for new features
+
+## Support
+
+For issues, questions, or contributions, please open an issue on GitHub.
+
+---
+
+**Built for the Berachain developer community** 🐻
