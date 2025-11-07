@@ -1,3 +1,13 @@
+<div align="center">
+  <img src="askbera.png" alt="Ask Bera - Bera MCP Server" width="100%">
+</div>
+
+<div align="center">
+
+[![smithery badge](https://smithery.ai/badge/@SerPepe/bera-mcp)](https://smithery.ai/server/@SerPepe/bera-mcp)
+
+</div>
+
 # Bera MCP Server 🐻
 
 **Your friendly bear companion for Berachain development!** 
