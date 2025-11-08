@@ -90,28 +90,21 @@ export async function handleQueryTool(
           };
         });
 
-        const prompt = `You are an expert Berachain developer assistant. Answer the following question using the provided documentation context.
+        const prompt = `Answer this question using the documentation provided.
 
 Question: ${question}
 
-Documentation Context:
+Documentation:
 ${context}
 
-Instructions:
-- Provide a comprehensive, detailed answer with code examples when relevant
-- Include complete, working code snippets from the documentation
-- Explain concepts clearly, especially for complex topics like smart contracts, oracles, and DeFi protocols
-- If the documentation contains code examples, include them in full - don't truncate or summarize code
-- Cite sources using [1], [2], etc. when referencing specific documentation
-- If the documentation doesn't fully answer the question, say so but provide what information is available
-- For technical questions, prioritize accuracy and completeness over brevity`;
+Answer the question directly using the information from the documentation.`;
 
         const llmResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${config.openrouter.apiKey}`,
-            'HTTP-Referer': 'https://github.com/bera-mcp-server',
+            'HTTP-Referer': 'https://github.com/SerPepe/bera-mcp',
             'X-Title': 'Bera MCP Server',
           },
           body: JSON.stringify({
@@ -119,21 +112,7 @@ Instructions:
             messages: [
               {
                 role: 'system',
-                content: `You are an expert Berachain blockchain development assistant. Your role is to help developers build on Berachain by providing accurate, comprehensive answers based on official documentation.
-
-Key responsibilities:
-- Answer questions about Berachain development, smart contracts, DeFi protocols, and integrations
-- Provide complete code examples - never truncate or summarize code snippets
-- Explain technical concepts clearly, especially for complex topics
-- Include all relevant details from the documentation, especially for code examples and integration guides
-- Cite sources when referencing documentation
-- Be thorough - developers need complete information, especially for code examples
-
-When answering:
-- Prioritize completeness and accuracy
-- Include full code examples from the documentation
-- Explain step-by-step processes clearly
-- Provide all necessary details for implementation`,
+                content: `You are Ask Bera, the Berachain MCP assistant. You help developers build on Berachain by answering questions using the provided documentation. Be direct and helpful. If the answer isn't in the docs, say so clearly.`,
               },
               {
                 role: 'user',

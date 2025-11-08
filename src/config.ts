@@ -6,7 +6,7 @@ export interface Config {
   openrouter: {
     apiKey: string;
     embeddingModel: 'google/gemini-embedding-001';
-    llmModel: 'z-ai/glm-4.6' | 'minimax/minimax-m2';
+    llmModel: string;
   };
   upstash: {
     url: string;
@@ -33,7 +33,7 @@ export interface UserConfig {
   openrouterApiKey?: string;
   upstashUrl?: string;
   upstashToken?: string;
-  llmModel?: 'z-ai/glm-4.6' | 'minimax/minimax-m2';
+  llmModel?: string;
   chunkSize?: number;
   chunkOverlap?: number;
   topK?: number;
@@ -51,7 +51,7 @@ export function getConfig(userConfig?: UserConfig): Config {
     throw new Error('UPSTASH_VECTOR_REST_URL and UPSTASH_VECTOR_REST_TOKEN environment variables are required');
   }
 
-  const llmModel = (userConfig?.llmModel || process.env.LLM_MODEL || 'z-ai/glm-4.6') as Config['openrouter']['llmModel'];
+  const llmModel = (userConfig?.llmModel || process.env.LLM_MODEL || 'google/gemini-2.5-flash-preview-09-2025') as Config['openrouter']['llmModel'];
 
   return {
     openrouter: {

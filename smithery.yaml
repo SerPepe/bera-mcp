@@ -5,7 +5,7 @@ env:
   # - OPENROUTER_API_KEY (required)
   # - UPSTASH_VECTOR_REST_URL (required)
   # - UPSTASH_VECTOR_REST_TOKEN (required)
-  # - LLM_MODEL (optional, defaults to 'z-ai/glm-4.6')
+  # - LLM_MODEL (optional, defaults to 'google/gemini-2.5-flash-preview-09-2025')
   # - CHUNK_SIZE (optional, defaults to 1000)
   # - CHUNK_OVERLAP (optional, defaults to 200)
   # - TOP_K (optional, defaults to 5)

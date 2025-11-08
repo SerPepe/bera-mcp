@@ -37,7 +37,7 @@ export class DocumentProcessor {
 
         if (entry.isDirectory()) {
           await walkDir(fullPath);
-        } else if (entry.isFile() && entry.name.endsWith('.md')) {
+        } else if (entry.isFile() && (entry.name.endsWith('.md') || entry.name.endsWith('.json'))) {
           files.push(fullPath);
         }
       }
@@ -49,6 +49,19 @@ export class DocumentProcessor {
 
   async parseMarkdown(filePath: string): Promise<string> {
     const content = await fs.readFile(filePath, 'utf-8');
+    
+    // If it's a JSON file, parse it and convert to readable text
+    if (filePath.endsWith('.json')) {
+      try {
+        const json = JSON.parse(content);
+        // Convert JSON to readable text format
+        return JSON.stringify(json, null, 2);
+      } catch {
+        return content;
+      }
+    }
+    
+    // Otherwise parse as markdown
     const tokens = marked.lexer(content);
     
     function extractText(tokens: any[]): string {
@@ -76,7 +89,24 @@ export class DocumentProcessor {
     return extractText(tokens).trim();
   }
 
-  chunkText(text: string, chunkSize: number, overlap: number): string[] {
+  chunkText(text: string, chunkSize: number, overlap: number, isJson: boolean = false): string[] {
+    // For JSON files, use character-based chunking to avoid huge chunks
+    if (isJson) {
+      const maxChunkChars = 2000; // Smaller chunks for JSON
+      const chunks: string[] = [];
+      let start = 0;
+      
+      while (start < text.length) {
+        const end = Math.min(start + maxChunkChars, text.length);
+        chunks.push(text.slice(start, end));
+        if (end >= text.length) break;
+        start = end - Math.floor(maxChunkChars * 0.1); // 10% overlap
+      }
+      
+      return chunks.length > 0 ? chunks : [text];
+    }
+    
+    // For markdown, use word-based chunking
     const chunks: string[] = [];
     const words = text.split(/\s+/);
     
@@ -110,11 +140,13 @@ export class DocumentProcessor {
     repo: 'docs' | 'guides' | 'local',
     basePath?: string
   ): Promise<DocumentChunk[]> {
+    const isJson = filePath.endsWith('.json');
     const text = await this.parseMarkdown(filePath);
     const chunks = this.chunkText(
       text,
       this.config.indexing.chunkSize,
-      this.config.indexing.chunkOverlap
+      this.config.indexing.chunkOverlap,
+      isJson
     );
 
     let relativePath: string;
@@ -184,8 +216,36 @@ export class DocumentProcessor {
   }
 
   async processRepos(docsPath: string, guidesPath: string, localFiles?: string[]): Promise<DocumentChunk[]> {
-    const docsChunks = await this.processDirectory(docsPath, 'docs');
-    const guidesChunks = await this.processDirectory(guidesPath, 'guides');
+    // Only process content directories from docs repo
+    const docsContentDirs = [
+      path.join(docsPath, 'apps', 'core', 'content'),
+      path.join(docsPath, 'apps', 'bex', 'content'),
+      path.join(docsPath, 'apps', 'bend', 'content'),
+      path.join(docsPath, 'packages', 'config'), // For constants.json
+    ];
+    
+    const docsChunks: DocumentChunk[] = [];
+    for (const dir of docsContentDirs) {
+      try {
+        await fs.access(dir);
+        const chunks = await this.processDirectory(dir, 'docs');
+        docsChunks.push(...chunks);
+      } catch {
+        // Directory doesn't exist, skip
+      }
+    }
+
+    // Process guides - only the apps directory with actual guides
+    const guidesContentDir = path.join(guidesPath, 'apps');
+    let guidesChunks: DocumentChunk[] = [];
+    try {
+      await fs.access(guidesContentDir);
+      guidesChunks = await this.processDirectory(guidesContentDir, 'guides');
+    } catch {
+      // If apps doesn't exist, try root
+      guidesChunks = await this.processDirectory(guidesPath, 'guides');
+    }
+    
     const localChunks = localFiles ? await this.processLocalFiles(localFiles) : [];
 
     return [...docsChunks, ...guidesChunks, ...localChunks];

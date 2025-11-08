@@ -79,7 +79,7 @@ OPENROUTER_API_KEY=your_openrouter_api_key_here
 UPSTASH_VECTOR_REST_URL=your_upstash_vector_url_here
 UPSTASH_VECTOR_REST_TOKEN=your_upstash_vector_token_here
 
-LLM_MODEL=z-ai/glm-4.6
+LLM_MODEL=google/gemini-2.5-flash-preview-09-2025
 ```
 
 **Required Environment Variables:**
@@ -88,7 +88,7 @@ LLM_MODEL=z-ai/glm-4.6
 - `UPSTASH_VECTOR_REST_TOKEN`: Your Upstash Vector REST API token
 
 **Optional Environment Variables:**
-- `LLM_MODEL`: LLM model for generating answers (default: `z-ai/glm-4.6`)
+- `LLM_MODEL`: LLM model for generating answers (default: `google/gemini-2.5-flash-preview-09-2025`)
 - `CHUNK_SIZE`: Document chunk size for indexing (default: `1000`)
 - `CHUNK_OVERLAP`: Overlap between chunks (default: `200`)
 - `TOP_K`: Number of results for search (default: `5`)
@@ -174,7 +174,7 @@ Bera MCP is configured for Smithery deployment using TypeScript runtime. The `sm
      - `openrouterApiKey`: Your OpenRouter API key
      - `upstashUrl`: Your Upstash Vector REST URL
      - `upstashToken`: Your Upstash Vector REST token
-     - `llmModel`: Optional - `z-ai/glm-4.6` or `minimax/minimax-m2` (default: `z-ai/glm-4.6`)
+     - `llmModel`: Optional - LLM model name (default: `google/gemini-2.5-flash-preview-09-2025`)
    - These will be securely stored and passed to your server
 
 4. **Deploy**:

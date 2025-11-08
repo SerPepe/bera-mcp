@@ -29,14 +29,27 @@ export class VectorStore {
       throw new Error('Chunks and embeddings arrays must have the same length');
     }
 
-    const vectors = chunks.map((chunk, index) => ({
-      id: chunk.id,
-      vector: embeddings[index],
-      metadata: {
-        content: chunk.content,
-        ...chunk.metadata,
-      },
-    }));
+    const vectors = chunks.map((chunk, index) => {
+      // Truncate content if too large (Upstash metadata limit is ~48KB)
+      // Keep content but limit to ~40KB to leave room for other metadata
+      const maxContentSize = 40000;
+      const content = chunk.content.length > maxContentSize 
+        ? chunk.content.substring(0, maxContentSize) + '...[truncated]'
+        : chunk.content;
+      
+      return {
+        id: chunk.id,
+        vector: embeddings[index],
+        metadata: {
+          content, // Store content but truncated if needed
+          filePath: chunk.metadata.filePath,
+          repo: chunk.metadata.repo,
+          chunkIndex: chunk.metadata.chunkIndex,
+          sectionTitle: chunk.metadata.sectionTitle || undefined,
+          totalChunks: chunk.metadata.totalChunks,
+        },
+      };
+    });
 
     const batchSize = 100;
     for (let i = 0; i < vectors.length; i += batchSize) {
