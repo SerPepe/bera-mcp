@@ -2,13 +2,13 @@ import { z } from 'zod';
 import { createServer as createServerInternal } from './server.js';
 
 export const configSchema = z.object({
-  openrouterApiKey: z.string().describe('Your OpenRouter API key for accessing LLM and embedding models'),
-  upstashUrl: z.string().describe('Your Upstash Vector REST URL'),
-  upstashToken: z.string().describe('Your Upstash Vector REST token'),
-  llmModel: z.enum(['z-ai/glm-4.6', 'minimax/minimax-m2']).default('z-ai/glm-4.6').describe('LLM model to use for generating answers'),
-  chunkSize: z.number().default(1000).describe('Document chunk size for indexing'),
-  chunkOverlap: z.number().default(200).describe('Document chunk overlap for indexing'),
-  topK: z.number().default(5).describe('Number of top results to retrieve for RAG'),
+  openrouterApiKey: z.string().optional().describe('Your OpenRouter API key (optional if OPENROUTER_API_KEY env var is set)'),
+  upstashUrl: z.string().optional().describe('Your Upstash Vector REST URL (optional if UPSTASH_VECTOR_REST_URL env var is set)'),
+  upstashToken: z.string().optional().describe('Your Upstash Vector REST token (optional if UPSTASH_VECTOR_REST_TOKEN env var is set)'),
+  llmModel: z.enum(['z-ai/glm-4.6', 'minimax/minimax-m2']).optional().describe('LLM model to use for generating answers (optional, defaults to z-ai/glm-4.6)'),
+  chunkSize: z.number().optional().describe('Document chunk size for indexing (optional, defaults to 1000)'),
+  chunkOverlap: z.number().optional().describe('Document chunk overlap for indexing (optional, defaults to 200)'),
+  topK: z.number().optional().describe('Number of top results to retrieve for RAG (optional, defaults to 5)'),
 });
 
 export default function createServer({ config }: { config?: z.infer<typeof configSchema> }) {
