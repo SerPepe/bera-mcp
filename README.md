@@ -1,3 +1,4 @@
+```markdown
 <div align="center">
   <img src="askbera.png" alt="Ask Bera - Bera MCP Server" width="100%">
 </div>
@@ -358,3 +359,4 @@ Got questions? Stuck on something? Bera's here to help!
 **Built with 🍯 for the Berachain developer community** 🐻
 
 *May your contracts deploy smoothly and your honey flow freely!*
+```
