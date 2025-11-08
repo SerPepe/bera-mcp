@@ -23,6 +23,11 @@ export function getQueryTool() {
         },
         required: ['question'],
       },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: false,
+      },
     },
   ];
 }

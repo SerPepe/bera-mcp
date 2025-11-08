@@ -22,6 +22,11 @@ export function getSearchTools() {
         },
         required: ['query'],
       },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
     },
     {
       name: 'get_doc_section',
@@ -40,6 +45,11 @@ export function getSearchTools() {
           },
         },
         required: ['filePath', 'repo'],
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
       },
     },
   ];
