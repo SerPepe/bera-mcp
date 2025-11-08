@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import { createServer as createServerInternal } from './server.js';
 
 export const configSchema = z.object({
@@ -9,6 +10,12 @@ export const configSchema = z.object({
   chunkSize: z.number().optional().describe('Document chunk size for indexing (optional, defaults to 1000)'),
   chunkOverlap: z.number().optional().describe('Document chunk overlap for indexing (optional, defaults to 200)'),
   topK: z.number().optional().describe('Number of top results to retrieve for RAG (optional, defaults to 5)'),
+});
+
+// Export JSON schema for MCP configuration documentation
+export const configJsonSchema = zodToJsonSchema(configSchema, {
+  name: 'BeraMCPConfig',
+  target: 'openApi3',
 });
 
 export default function createServer({ config }: { config?: z.infer<typeof configSchema> }) {
