@@ -14,6 +14,7 @@ import { EmbeddingService } from './embeddings.js';
 import { Config, getConfig } from './config.js';
 import { getSearchTools, handleSearchTool } from './tools/search.js';
 import { getQueryTool, handleQueryTool } from './tools/query.js';
+import { configJsonSchema } from './config-schema.js';
 
 const version = '0.1.0';
 
@@ -70,6 +71,7 @@ export function createServer(userConfig?: { config?: any }): Server {
         name: 'bera-mcp-server',
         version: version || '0.1.0',
       },
+      config: configJsonSchema,
       instructions: `You are the Bera MCP Server, providing access to Berachain development documentation and guides.
 
 Available tools:
