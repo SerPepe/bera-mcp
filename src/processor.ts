@@ -8,7 +8,7 @@ export interface DocumentChunk {
   content: string;
   metadata: {
     filePath: string;
-    repo: 'docs' | 'guides' | 'local';
+    repo: 'docs' | 'guides' | 'abis' | 'local';
     chunkIndex: number;
     sectionTitle?: string;
     totalChunks: number;
@@ -137,7 +137,7 @@ export class DocumentProcessor {
 
   async processFile(
     filePath: string,
-    repo: 'docs' | 'guides' | 'local',
+    repo: 'docs' | 'guides' | 'abis' | 'local',
     basePath?: string
   ): Promise<DocumentChunk[]> {
     const isJson = filePath.endsWith('.json');
@@ -153,10 +153,12 @@ export class DocumentProcessor {
     if (repo === 'local') {
       relativePath = path.basename(filePath);
     } else {
-      relativePath = path.relative(
-        repo === 'docs' ? this.config.repos.docs.path : this.config.repos.guides.path,
-        filePath
-      );
+      const basePath = repo === 'docs' 
+        ? this.config.repos.docs.path 
+        : repo === 'guides' 
+        ? this.config.repos.guides.path 
+        : this.config.repos.abis.path;
+      relativePath = path.relative(basePath, filePath);
     }
 
     return chunks.map((chunk, index) => {
@@ -177,7 +179,7 @@ export class DocumentProcessor {
 
   async processDirectory(
     dir: string,
-    repo: 'docs' | 'guides'
+    repo: 'docs' | 'guides' | 'abis'
   ): Promise<DocumentChunk[]> {
     const files = await this.findMarkdownFiles(dir);
     const allChunks: DocumentChunk[] = [];
@@ -215,7 +217,7 @@ export class DocumentProcessor {
     return allChunks;
   }
 
-  async processRepos(docsPath: string, guidesPath: string, localFiles?: string[]): Promise<DocumentChunk[]> {
+  async processRepos(docsPath: string, guidesPath: string, abisPath: string, localFiles?: string[]): Promise<DocumentChunk[]> {
     // Only process content directories from docs repo
     const docsContentDirs = [
       path.join(docsPath, 'apps', 'core', 'content'),
@@ -245,10 +247,20 @@ export class DocumentProcessor {
       // If apps doesn't exist, try root
       guidesChunks = await this.processDirectory(guidesPath, 'guides');
     }
+
+    // Process ABIs - index JSON files from the abis repo
+    let abisChunks: DocumentChunk[] = [];
+    try {
+      await fs.access(abisPath);
+      // Process the entire abis directory (it contains JSON ABI files)
+      abisChunks = await this.processDirectory(abisPath, 'abis');
+    } catch {
+      // Directory doesn't exist, skip
+    }
     
     const localChunks = localFiles ? await this.processLocalFiles(localFiles) : [];
 
-    return [...docsChunks, ...guidesChunks, ...localChunks];
+    return [...docsChunks, ...guidesChunks, ...abisChunks, ...localChunks];
   }
 }
 

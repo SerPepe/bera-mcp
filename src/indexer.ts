@@ -24,8 +24,10 @@ export class Indexer {
     const localFiles: string[] = [];
     const projectRoot = process.cwd();
     const docsDir = path.join(projectRoot, 'docs');
+    const kodiakDocsDir = path.join(projectRoot, 'data', 'kodiak-docs');
     const excludedFiles = ['README.md', 'UPSTASH_SETUP.md'];
     
+    // Find files in docs directory
     try {
       const entries = await fs.readdir(docsDir, { withFileTypes: true }).catch(() => []);
       for (const entry of entries) {
@@ -42,6 +44,22 @@ export class Indexer {
       console.warn('Could not read docs directory:', error);
     }
     
+    // Find files in kodiak-docs directory
+    try {
+      const entries = await fs.readdir(kodiakDocsDir, { withFileTypes: true }).catch(() => []);
+      for (const entry of entries) {
+        if (
+          entry.isFile() && 
+          entry.name.endsWith('.md') && 
+          !entry.name.startsWith('.')
+        ) {
+          localFiles.push(path.join(kodiakDocsDir, entry.name));
+        }
+      }
+    } catch (error) {
+      console.warn('Could not read kodiak-docs directory:', error);
+    }
+    
     return localFiles;
   }
 
@@ -49,7 +67,7 @@ export class Indexer {
     console.log('Starting indexing process...');
 
     console.log('\n=== Step 1: Downloading repositories ===');
-    const { docs, guides } = await this.downloader.downloadAll();
+    const { docs, guides, abis } = await this.downloader.downloadAll();
 
     console.log('\n=== Step 1.5: Finding local markdown files ===');
     const localFiles = await this.findLocalMarkdownFiles();
@@ -58,7 +76,7 @@ export class Indexer {
     }
 
     console.log('\n=== Step 2: Processing documents ===');
-    const chunks = await this.processor.processRepos(docs, guides, localFiles);
+    const chunks = await this.processor.processRepos(docs, guides, abis, localFiles);
     console.log(`Total chunks to index: ${chunks.length}`);
 
     if (chunks.length === 0) {

@@ -26,6 +26,10 @@ export interface Config {
       url: string;
       path: string;
     };
+    abis: {
+      url: string;
+      path: string;
+    };
   };
 }
 
@@ -76,6 +80,10 @@ export function getConfig(userConfig?: UserConfig): Config {
       guides: {
         url: 'https://github.com/berachain/guides.git',
         path: process.env.GUIDES_PATH || './data/guides',
+      },
+      abis: {
+        url: 'https://github.com/berachain/abis.git',
+        path: process.env.ABIS_PATH || './data/abis',
       },
     },
   };

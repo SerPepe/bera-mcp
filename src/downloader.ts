@@ -49,7 +49,7 @@ export class DocumentDownloader {
     return repoPath;
   }
 
-  async downloadAll(): Promise<{ docs: string; guides: string }> {
+  async downloadAll(): Promise<{ docs: string; guides: string; abis: string }> {
     console.log('Downloading Berachain documentation repositories...');
 
     const docsPath = await this.ensureRepo({
@@ -64,10 +64,17 @@ export class DocumentDownloader {
       name: 'guides',
     });
 
+    const abisPath = await this.ensureRepo({
+      path: this.config.repos.abis.path,
+      url: this.config.repos.abis.url,
+      name: 'abis',
+    });
+
     console.log('Repositories downloaded successfully');
     return {
       docs: docsPath,
       guides: guidesPath,
+      abis: abisPath,
     };
   }
 
