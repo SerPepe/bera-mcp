@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/serpepe-bera-mcp-badge.png)](https://mseep.ai/app/serpepe-bera-mcp)
+
 <div align="center">
   <img src="askbera.png" alt="Ask Bera - Bera MCP Server" width="100%">
 </div>
